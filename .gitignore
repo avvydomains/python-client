@@ -1,4 +1,6 @@
 env.sh
 *.pyc
+*.swp
+*.swo
 __pycache__
 tmp
