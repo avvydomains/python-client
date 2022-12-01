@@ -7,7 +7,7 @@ echo "Current version is $(cat VERSION.txt).  What version did you want to relea
 read VERSION
 echo $VERSION > VERSION.txt
 python setup.py sdist
-twine upload ".tar.gz"
+(cd dist && twine upload "avvy-$VERSION.tar.gz")
 git add .
 git commit -m "v$VERSION"
 git tag -a "v$VERSION" -m "v$VERSION"
