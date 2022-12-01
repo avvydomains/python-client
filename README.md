@@ -19,7 +19,7 @@ You will also need to have web3.py installed:
 from avvy import AvvyClient
 from web3 import Web3
 
-w3 = Web3(Web3.HttpProvider('https://api.avax.network/ext/bc/C/rpc'))
+w3 = Web3(Web3.HTTPProvider('https://api.avax.network/ext/bc/C/rpc'))
 avvy = AvvyClient(w3)
 ```
 
@@ -28,7 +28,7 @@ avvy = AvvyClient(w3)
 For example, using a .avax domain to find an 0x address:
 
 ```python3
-evm_address = avvy.resolve(avvy.RECORDS.EVM)
+evm_address = avvy.name('avvydomains.avax').resolve(avvy.RECORDS.EVM)
 ```
 
 # Development
