@@ -4,3 +4,5 @@ env.sh
 *.swo
 __pycache__
 tmp
+dist
+avvy.egg-info
