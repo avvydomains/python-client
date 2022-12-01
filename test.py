@@ -79,6 +79,30 @@ class ClientTestCase(unittest.TestCase):
 		_hash = 1
 		name = client.hash(_hash).lookup()
 		self.assertEqual(name, None)
+	
+	def test_reverse_resolve(self):
+		client = self._build_client()
+		_hash = client.reverse(client.RECORDS.EVM, REVERSE_TEST_PUBKEY)
+		expected = client.utils.name_hash('avvy-client-common-reverse.avax')
+		self.assertEqual(_hash.hash, expected)
+	
+	def test_reverse_resolve_fetch_preimage(self):
+		client = self._build_client()
+		_hash = client.reverse(client.RECORDS.EVM, REVERSE_TEST_PUBKEY)
+		name = _hash.lookup()
+		self.assertEqual(name.name, 'avvy-client-common-reverse.avax')
+	
+	def test_reverse_resolve_no_resolver(self):
+		client = self._build_client()
+		with self.assertRaises(client.exceptions.ReverseResolutionNotSupportedException):
+			client.reverse(client.RECORDS.X_CHAIN, REVERSE_TEST_PUBKEY)
+	
+	def test_reverse_resolve_not_found(self):
+		client = self._build_client()
+		_hash = client.reverse(client.RECORDS.EVM, REVERSE_TEST_PUBKEY_NOT_SET)
+		self.assertEqual(_hash, None)
+		
+
 		
 
 if __name__ == '__main__':

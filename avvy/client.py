@@ -191,4 +191,18 @@ class Client:
 		Takes a given Standard Key (e.g. EVM) and a value,
 		and attempts to find the related name.
 		"""
-		pass
+		if key != self.RECORDS.EVM:
+			raise self.exceptions.ReverseResolutionNotSupportedException()
+		registry = self.load_contract('ReverseResolverRegistryV1')
+		address = registry.functions.getResolver(key).call()
+		contract = self.load_contract('EVMReverseResolverV1', address)
+		try:
+			# domain is the SLD, name is the subdomain that we point to
+			domain, name = contract.functions.get(value).call()
+		except Exception as e:
+			if 'EVMReverseResolverV1: does not exist' in str(e):
+				return None
+			raise e
+		return Hash(self, name)
+
+

@@ -10,4 +10,7 @@ class ResolverNotSetException(Exception):
 	pass
 
 
+class ReverseResolutionNotSupportedException(Exception):
+	pass
+
 
