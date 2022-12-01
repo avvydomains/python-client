@@ -12,6 +12,16 @@ class ClientTestCase(unittest.TestCase):
 	def _build_client(self):
 		w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
 		return AvvyClient(w3, 31337)
+	
+	def test_registrant(self):
+		client = self._build_client()
+		registrant = client.name('avvy-client-common-testing.avax').registrant()
+		self.assertEqual(registrant[:2], '0x')
+	
+	def test_registrant_does_not_exist(self):
+		client = self._build_client()
+		registrant = client.name('avvy-client-common-doesnt-exist.avax').registrant()
+		self.assertEqual(registrant, None)
 		
 	def test_records_loaded(self):
 		client = self._build_client()

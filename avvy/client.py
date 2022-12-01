@@ -54,6 +54,16 @@ class Name:
 		now = int(time.time())
 		return now >= expiry
 	
+	def registrant(self):
+		_hash = self.client.utils.name_hash(self.domain)
+		domain_contract = self.client.load_contract('Domain')
+		try:
+			return domain_contract.functions.ownerOf(_hash).call()
+		except Exception as e:
+			if 'ERC721: owner query for nonexistent token' in str(e):
+				return None
+			raise e
+	
 	def resolve(self, key):
 		if self.is_expired():
 			raise self.client.exceptions.DomainExpiredException()
