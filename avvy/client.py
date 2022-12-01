@@ -1,6 +1,6 @@
 from .contracts import contract_data
 from .records import record_data
-from .exceptions import *
+from . import exceptions
 import time
 
 
@@ -29,7 +29,7 @@ class Name:
 			address, dataset_id = resolver_registry.functions.get(domain_hash, _hash).call()
 		except Exception as e:
 			if 'ResolverRegistry: resolver not set' in str(e):
-				raise ResolverNotSetException()
+				raise self.client.exceptions.ResolverNotSetException()
 			raise e
 		resolver = self.client.load_contract('PublicResolverV1', address)
 		return [resolver, dataset_id]
@@ -56,7 +56,7 @@ class Name:
 	
 	def resolve(self, key):
 		if self.is_expired():
-			raise DomainExpiredException()
+			raise self.client.exceptions.DomainExpiredException()
 
 		if type(key) == int:
 			return self._resolve_standard(key)
@@ -64,7 +64,7 @@ class Name:
 		elif type(key) == str:
 			return self._resolve_custom(key)
 
-		raise InvalidKeyException('Resolution key must be a string or an integer')
+		raise self.client.InvalidKeyException('Resolution key must be a string or an integer')
 
 
 class Hash:
@@ -149,6 +149,7 @@ class Client:
 		self.utils = Utils(self)
 		self.RECORDS = Records()
 		self.poseidon_cache = {}
+		self.exceptions = exceptions
 	
 	def load_contract(self, contract_name, address=None):
 		chain = contract_data[str(self.chain_id)]

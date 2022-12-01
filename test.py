@@ -59,12 +59,12 @@ class ClientTestCase(unittest.TestCase):
 	
 	def test_resolve_expired(self):
 		client = self._build_client()
-		with self.assertRaises(exceptions.DomainExpiredException):
+		with self.assertRaises(client.exceptions.DomainExpiredException):
 			client.name('avvy-client-common-expired.avax').resolve(client.RECORDS.X_CHAIN)
 	
 	def test_resolve_no_resolver(self):
 		client = self._build_client()
-		with self.assertRaises(exceptions.ResolverNotSetException):
+		with self.assertRaises(client.exceptions.ResolverNotSetException):
 			client.name('avvy-client-common-no-resolver.avax').resolve(client.RECORDS.X_CHAIN)
 	
 	def test_hash_reverse_revealed(self):
