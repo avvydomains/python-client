@@ -13,6 +13,16 @@ class ClientTestCase(unittest.TestCase):
 		w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
 		return AvvyClient(w3, 31337)
 	
+	def test_is_minted_no(self):
+		client = self._build_client()
+		is_minted = client.name('avvy-client-common-testing-not-minted.avax').is_minted()
+		self.assertFalse(is_minted)
+	
+	def test_is_minted_yes(self):
+		client = self._build_client()
+		is_minted = client.name('avvy-client-common-testing.avax').is_minted()
+		self.assertTrue(is_minted)
+	
 	def test_registrant(self):
 		client = self._build_client()
 		registrant = client.name('avvy-client-common-testing.avax').registrant()
@@ -62,6 +72,11 @@ class ClientTestCase(unittest.TestCase):
 		address = client.name('avvy-client-common-testing.avax'.upper()).resolve(client.RECORDS.X_CHAIN)
 		self.assertEqual(address, 'x-avax13fd740ykwc5peewmkcgu8r9nmnhns5gpdrgfjy')
 	
+	def test_standard_record_invalid_key(self):
+		client = self._build_client()
+		result = client.name('avvy-client-common-testing.avax'.upper()).resolve(31337)
+		self.assertEqual(result, None)
+	
 	def test_custom_record(self):
 		client = self._build_client()
 		address = client.name('avvy-client-common-testing.avax').resolve('CUSTOM_KEY')
@@ -69,13 +84,13 @@ class ClientTestCase(unittest.TestCase):
 	
 	def test_resolve_expired(self):
 		client = self._build_client()
-		with self.assertRaises(client.exceptions.DomainExpiredException):
-			client.name('avvy-client-common-expired.avax').resolve(client.RECORDS.X_CHAIN)
+		result = client.name('avvy-client-common-expired.avax').resolve(client.RECORDS.X_CHAIN)
+		self.assertEqual(result, None)
 	
 	def test_resolve_no_resolver(self):
 		client = self._build_client()
-		with self.assertRaises(client.exceptions.ResolverNotSetException):
-			client.name('avvy-client-common-no-resolver.avax').resolve(client.RECORDS.X_CHAIN)
+		result = client.name('avvy-client-common-no-resolver.avax').resolve(client.RECORDS.X_CHAIN)
+		self.assertEqual(result, None)
 	
 	def test_hash_reverse_revealed(self):
 		domain = 'avvy-client-common-testing.avax'
@@ -104,13 +119,27 @@ class ClientTestCase(unittest.TestCase):
 	
 	def test_reverse_resolve_no_resolver(self):
 		client = self._build_client()
-		with self.assertRaises(client.exceptions.ReverseResolutionNotSupportedException):
-			client.reverse(client.RECORDS.X_CHAIN, REVERSE_TEST_PUBKEY)
+		output = client.reverse(client.RECORDS.X_CHAIN, REVERSE_TEST_PUBKEY)
+		self.assertEqual(output, None)
 	
 	def test_reverse_resolve_not_found(self):
 		client = self._build_client()
 		_hash = client.reverse(client.RECORDS.EVM, REVERSE_TEST_PUBKEY_NOT_SET)
 		self.assertEqual(_hash, None)
+	
+	def test_records_list(self):
+		client = self._build_client()
+		self.assertEqual(client.RECORDS._LIST[0]['name'], 'X_CHAIN')
+	
+	def test_load_contract(self):
+		client = self._build_client()
+		poseidon = client.load_contract('Poseidon')
+		self.assertNotEqual(poseidon, None)
+	
+	def test_load_contract_doesnt_exist(self):
+		client = self._build_client()
+		poseidon = client.load_contract('PoseidonWat')
+		self.assertEqual(poseidon, None)
 		
 
 		

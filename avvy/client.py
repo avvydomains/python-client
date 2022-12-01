@@ -54,6 +54,9 @@ class Name:
 		now = int(time.time())
 		return now >= expiry
 	
+	def is_minted(self):
+		return self.get_expiry() > 0
+	
 	def registrant(self):
 		_hash = self.client.utils.name_hash(self.domain)
 		domain_contract = self.client.load_contract('Domain')
@@ -66,15 +69,24 @@ class Name:
 	
 	def resolve(self, key):
 		if self.is_expired():
-			raise self.client.exceptions.DomainExpiredException()
+			return None
+	
+		key_type = type(key)
+		if key_type not in [int, str]:
+			raise self.client.InvalidKeyException('Resolution key must be a string or an integer')
 
-		if type(key) == int:
-			return self._resolve_standard(key)
+		try: 
+			if type(key) == int:
+				value = self._resolve_standard(key)
 
-		elif type(key) == str:
-			return self._resolve_custom(key)
+			elif type(key) == str:
+				value = self._resolve_custom(key)
 
-		raise self.client.InvalidKeyException('Resolution key must be a string or an integer')
+		except self.client.exceptions.ResolverNotSetException:
+			return None
+
+		if value == '': return None
+		return value
 
 
 class Hash:
@@ -96,6 +108,7 @@ class Hash:
 
 class Records:
 	def __init__(self):
+		setattr(self, '_LIST', record_data['records'])
 		for record in record_data['records']:
 			setattr(self, record['name'], record['key'])
 
@@ -202,7 +215,7 @@ class Client:
 		and attempts to find the related name.
 		"""
 		if key != self.RECORDS.EVM:
-			raise self.exceptions.ReverseResolutionNotSupportedException()
+			return None
 		registry = self.load_contract('ReverseResolverRegistryV1')
 		address = registry.functions.getResolver(key).call()
 		contract = self.load_contract('EVMReverseResolverV1', address)
