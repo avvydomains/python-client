@@ -16,7 +16,7 @@ setup(
     author_email='connor@avvy.domains',
     packages=find_packages(),
 	include_package_data=True,
-    install_requires=[i
+    install_requires=[
 		'web3',
 	],
     zip_safe=False,
